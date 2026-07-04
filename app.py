@@ -71,13 +71,17 @@ st.divider()
 query = st.text_input("Ask a question about the document:")
 
 if query:
-    with st.spinner("Searching relevant chunks..."):
-        results = collection.query(query_texts=[query], n_results=4)
+   with st.spinner("Searching relevant chunks..."):
+        results = collection.query(
+            query_texts=[query],
+            n_results=4,
+            where={"source": uploaded_file.name}
+        )
         retrieved_chunks = results["documents"][0]
 
-    context = "\n\n---\n\n".join(retrieved_chunks)
+   context = "\n\n---\n\n".join(retrieved_chunks)
 
-    prompt = f"""Answer the question based only on the following context from the document.
+   prompt = f"""Answer the question based only on the following context from the document.
 If the answer isn't in the context, say so clearly.
 
 Context:
@@ -87,14 +91,14 @@ Question: {query}
 
 Answer:"""
 
-    with st.spinner("Asking Gemini..."):
+   with st.spinner("Asking Gemini..."):
         response = model.generate_content(prompt)
         answer = response.text
 
-    st.subheader("Answer")
-    st.write(answer)
+   st.subheader("Answer")
+   st.write(answer)
 
-    with st.expander("See retrieved chunks (what Gemini used)"):
+   with st.expander("See retrieved chunks (what Gemini used)"):
         for i, chunk in enumerate(retrieved_chunks):
             st.markdown(f"**Chunk {i+1}:**")
             st.text(chunk)
